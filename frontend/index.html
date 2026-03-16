@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karplus-Strong Synthesizer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="./index.html" class="nav-brand">Karplus-Strong</a>
+            <div class="nav-links">
+                <a href="./learn.html" data-i18n="nav_learn">Aprender</a>
+                <a href="./compose.html" data-i18n="nav_compose">Componer</a>
+                <button id="langToggle" class="lang-toggle" title="Toggle language">
+                    <span id="langLabel">ES</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <section class="hero">
+            <h1>Karplus-Strong</h1>
+            <p class="sub" data-i18n="hero_sub">Aprende procesamiento digital de se&ntilde;ales a trav&eacute;s de demos interactivas y crea tu propia m&uacute;sica de cuerdas pulsadas</p>
+            <div class="hero-buttons">
+                <a href="./learn.html" class="btn btn-primary" data-i18n="hero_learn">Comenzar a Aprender</a>
+                <a href="./compose.html" class="btn btn-accent2" data-i18n="hero_compose">Crear M&uacute;sica</a>
+            </div>
+        </section>
+
+        <section class="features">
+            <h2 data-i18n="features_title">Caracter&iacute;sticas</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3 data-i18n="feat_learn">Aprendizaje Interactivo</h3>
+                    <p data-i18n="feat_learn_desc">Entiende el algoritmo Karplus-Strong con visualizaciones, ecuaciones y demos de audio en tiempo real</p>
+                </div>
+                <div class="feature-card">
+                    <h3 data-i18n="feat_piano">Editor Piano Roll</h3>
+                    <p data-i18n="feat_piano_desc">Crea melod&iacute;as con una interfaz de cuadr&iacute;cula intuitiva. Coloca notas y esc&uacute;chalas sintetizadas</p>
+                </div>
+                <div class="feature-card">
+                    <h3 data-i18n="feat_preset">Canciones Preset</h3>
+                    <p data-i18n="feat_preset_desc">Carga melod&iacute;as pre-construidas para empezar, o crea y guarda tus propias composiciones</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="what-is">
+            <h2 data-i18n="what_is_title">&iquest;Qu&eacute; es Karplus-Strong?</h2>
+            <p data-i18n="what_is_p1">El algoritmo Karplus-Strong es un m&eacute;todo simple y elegante para sintetizar instrumentos de cuerda pulsada como guitarras, arpas y pianos. Desarrollado en 1983, utiliza un breve estallido de ruido filtrado a trav&eacute;s de una l&iacute;nea de retardo para crear sonidos de cuerdas sorprendentemente realistas.</p>
+            <p data-i18n="what_is_p2">Esta aplicaci&oacute;n web trae el algoritmo a la vida en tu navegador usando la Web Audio API, permiti&eacute;ndote aprender la teor&iacute;a y experimentar creando m&uacute;sica.</p>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p data-i18n="footer">Karplus-Strong Synthesizer &copy; 2026</p>
+        <p class="footer-sub" data-i18n="footer_sub">Herramienta educativa interactiva para aprender procesamiento digital de se&ntilde;ales</p>
+    </footer>
+
+    <script src="./js/i18n/strings.js"></script>
+    <script src="./js/app.js"></script>
+</body>
+</html>

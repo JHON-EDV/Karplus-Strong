@@ -1,0 +1,3 @@
+window.KS_CONFIG = {
+    API_URL: 'BACKEND_URL_PLACEHOLDER/api/v1'
+};

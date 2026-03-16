@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karplus-Strong - Learn</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tone@14.7.77/build/Tone.min.js"></script>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="./index.html" class="nav-brand">Karplus-Strong</a>
+            <div class="nav-links">
+                <a href="./learn.html" data-i18n="nav_learn">Aprender</a>
+                <a href="./compose.html" data-i18n="nav_compose">Componer</a>
+                <button id="langToggle" class="lang-toggle" title="Toggle language">
+                    <span id="langLabel">ES</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="learn-page">
+
+            <h1 data-i18n="learn_title">Aprende el Algoritmo Karplus-Strong</h1>
+            <p class="intro" data-i18n="learn_intro">Desde cero, paso a paso. No necesitas saber nada de programaci&oacute;n ni de m&uacute;sica.</p>
+
+            <div class="toc">
+                <h3 data-i18n="learn_toc">Contenido</h3>
+                <ul>
+                    <li><a href="#sec1" data-i18n="toc_1">1. &iquest;Qu&eacute; vamos a hacer?</a></li>
+                    <li><a href="#sec2" data-i18n="toc_2">2. El ruido: la materia prima</a></li>
+                    <li><a href="#sec3" data-i18n="toc_3">3. Frecuencia y sonido digital</a>
+                        <ul style="margin-left: 1.25rem; margin-top: .25rem;">
+                            <li><a href="#sec3a" data-i18n="toc_3a" style="font-size: .85rem;">3a. &iquest;Qu&eacute; es una onda?</a></li>
+                            <li><a href="#sec3b" data-i18n="toc_3b" style="font-size: .85rem;">3b. De anal&oacute;gico a digital</a></li>
+                            <li><a href="#sec3c" data-i18n="toc_3c" style="font-size: .85rem;">3c. El truco de Karplus-Strong</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#sec4" data-i18n="toc_4">4. El coraz&oacute;n del algoritmo</a>
+                        <ul style="margin-left: 1.25rem; margin-top: .25rem;">
+                            <li><a href="#sec4a" data-i18n="toc_4a" style="font-size: .85rem;">4a. El buffer circular</a></li>
+                            <li><a href="#sec4b" data-i18n="toc_4b" style="font-size: .85rem;">4b. Filtro pasada a pasada</a></li>
+                            <li><a href="#sec4c" data-i18n="toc_4c" style="font-size: .85rem;">4c. El decaimiento</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#sec5" data-i18n="toc_5">5. El espectro: ver dentro del sonido</a></li>
+                    <li><a href="#sec6" data-i18n="toc_6">6. Afinando el sonido</a></li>
+                    <li><a href="#sec7" data-i18n="toc_7">7. S&iacute;ntesis completa: todo junto</a></li>
+                </ul>
+            </div>
+
+            <!-- Section 1 -->
+            <section id="sec1" class="learn-section">
+                <h2 data-i18n="s1_title">1. &iquest;Qu&eacute; vamos a hacer?</h2>
+                <p data-i18n="s1_p1">Imagina que pulsas una cuerda de guitarra. Escuchas un sonido que empieza fuerte y poco a poco se apaga. &iquest;C&oacute;mo podr&iacute;amos recrear ese sonido con una computadora?</p>
+                <p data-i18n="s1_p2">En 1983, Kevin Karplus y Alex Strong descubrieron un truco genial: si tomas un peque&ntilde;o trozo de ruido aleatorio y lo pasas una y otra vez por un filtro que lo suaviza, el resultado suena como una cuerda pulsada.</p>
+                <p data-i18n="s1_p3">El proceso tiene 3 pasos:</p>
+                <div class="steps">
+                    <div class="step-card">
+                        <div class="step-num">1</div>
+                        <h4 data-i18n="s1_step1_title">Paso 1: Ruido</h4>
+                        <p data-i18n="s1_step1">Generar un peque&ntilde;o trozo de n&uacute;meros aleatorios (como est&aacute;tica de TV)</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-num">2</div>
+                        <h4 data-i18n="s1_step2_title">Paso 2: Repetir</h4>
+                        <p data-i18n="s1_step2">Repetir ese trozo en un bucle circular</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-num">3</div>
+                        <h4 data-i18n="s1_step3_title">Paso 3: Suavizar</h4>
+                        <p data-i18n="s1_step3">Cada vez que pasa por el bucle, promediar cada muestra con la siguiente</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2 -->
+            <section id="sec2" class="learn-section">
+                <h2 data-i18n="s2_title">2. El ruido: la materia prima</h2>
+                <p data-i18n="s2_p1">Todo empieza con ruido &mdash; n&uacute;meros aleatorios. Piensa en la est&aacute;tica de una TV vieja, o el sonido &quot;shhh&quot; entre estaciones de radio. Eso es ruido blanco: valores al azar que suben y bajan sin patr&oacute;n.</p>
+                <p data-i18n="s2_p2">A nuestro algoritmo le damos un trozo peque&ntilde;o de este ruido. &iquest;Qu&eacute; tan peque&ntilde;o? Eso depende de la nota que queremos tocar (lo veremos en la siguiente secci&oacute;n).</p>
+                <div class="demo-box">
+                    <canvas id="noiseCanvas"></canvas>
+                    <div class="demo-controls">
+                        <label>
+                            <span data-i18n="s2_demo_label">Cantidad de muestras:</span>
+                            <input type="range" id="noiseSamples" min="20" max="400" value="100">
+                            <span class="value-display" id="noiseSamplesVal">100</span>
+                        </label>
+                        <label>
+                            <span data-i18n="s2_duration_label">Duraci&oacute;n:</span>
+                            <input type="range" id="noiseDuration" min="0.1" max="3.0" value="1.0" step="0.1">
+                            <span class="value-display" id="noiseDurationVal">1.0s</span>
+                        </label>
+                        <button class="btn btn-primary btn-sm" id="btnGenNoise" data-i18n="s2_btn_generate">Generar ruido</button>
+                        <button class="btn btn-secondary btn-sm" id="btnListenNoise" data-i18n="s2_btn_listen">Escuchar ruido</button>
+                    </div>
+                </div>
+                <p data-i18n="s2_p3">El gr&aacute;fico de arriba muestra el ruido: cada punto es un n&uacute;mero aleatorio entre -1 y 1. No tiene forma, no tiene patr&oacute;n. Pero es exactamente lo que necesitamos como punto de partida.</p>
+            </section>
+
+            <!-- Section 3 -->
+            <section id="sec3" class="learn-section">
+                <h2 data-i18n="s3_title">3. Frecuencia y sonido digital</h2>
+
+                <div id="sec3a" style="scroll-margin-top: 5rem;">
+                    <h3 data-i18n="s3a_title" style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: .75rem; color: var(--c-accent);">3a. &iquest;Qu&eacute; es una onda?</h3>
+                    <p data-i18n="s3a_p1">Cuando tocas una cuerda, el aire vibra. Esas vibraciones son ondas. Mientras m&aacute;s r&aacute;pido vibra, m&aacute;s agudo es el sonido.</p>
+                    <p data-i18n="s3a_p2">La frecuencia mide qu&eacute; tan r&aacute;pido vibra algo. Se mide en Hertz (Hz) = vibraciones por segundo. Mira esta onda pura:</p>
+                    <div class="demo-box">
+                        <canvas id="sineCanvas"></canvas>
+                        <div class="demo-controls">
+                            <label>
+                                <span data-i18n="s3a_freq_label">Frecuencia:</span>
+                                <input type="range" id="sineFreq" min="110" max="880" value="220" step="1">
+                                <span class="value-display" id="sineFreqVal">220 Hz</span>
+                            </label>
+                            <button class="btn btn-primary btn-sm" id="btnPlaySine" data-i18n="s3a_btn_play">Escuchar onda pura</button>
+                        </div>
+                    </div>
+                    <p data-i18n="s3a_p3">Una nota LA (440 Hz) vibra 440 veces por segundo. Una nota grave (110 Hz) vibra solo 110 veces. &iexcl;Mueve el slider y mira c&oacute;mo cambia la onda!</p>
+                </div>
+
+                <div id="sec3b" style="scroll-margin-top: 5rem;">
+                    <h3 data-i18n="s3b_title" style="font-size: 1.2rem; margin-top: 2.5rem; margin-bottom: .75rem; color: var(--c-accent);">3b. De anal&oacute;gico a digital</h3>
+                    <p data-i18n="s3b_p1">Una onda de sonido real es continua, fluye sin pausas. Pero una computadora no puede guardar algo continuo &mdash; necesita n&uacute;meros.</p>
+                    <p data-i18n="s3b_p2">La soluci&oacute;n: tomar instant&aacute;neas (muestras) de la onda miles de veces por segundo. Es como tomar fotos de algo que se mueve r&aacute;pido.</p>
+                    <div class="demo-box">
+                        <canvas id="samplingCanvas"></canvas>
+                        <div class="demo-controls">
+                            <label>
+                                <span data-i18n="s3b_zoom_label">Acercar:</span>
+                                <input type="range" id="samplingZoom" min="1" max="10" value="1" step="1">
+                                <span class="value-display" id="samplingZoomVal">1x</span>
+                            </label>
+                            <span style="font-size: .85rem; color: var(--c-text-dim);" data-i18n="s3b_sample_rate">Tasa de muestreo: 44,100 muestras/segundo</span>
+                        </div>
+                    </div>
+                    <p data-i18n="s3b_p3">Usamos 44,100 muestras por segundo. &iexcl;Suficientes para capturar el sonido perfectamente! Los puntos naranjas muestran cada muestra:</p>
+                </div>
+
+                <div id="sec3c" style="scroll-margin-top: 5rem;">
+                    <h3 data-i18n="s3c_title" style="font-size: 1.2rem; margin-top: 2.5rem; margin-bottom: .75rem; color: var(--c-accent);">3c. El truco de Karplus-Strong</h3>
+                    <p data-i18n="s3c_p1">Ahora que entiendes Hz y muestras, viene el truco m&aacute;gico de Karplus-Strong:</p>
+                    <div class="formula-box">
+                        <p data-i18n="s3c_formula_explain">La longitud del trozo de ruido determina la frecuencia. Si queremos una nota de 440 Hz:</p>
+                        $$N = \frac{f_s}{f_0} = \frac{44100}{440} = 100 \text{ muestras}$$
+                    </div>
+                    <p data-i18n="s3c_p2">&iexcl;Solo 100 n&uacute;meros aleatorios para crear una nota musical! Mueve el slider para escuchar c&oacute;mo cambian las notas:</p>
+                    <div class="demo-box">
+                        <canvas id="freqCanvas"></canvas>
+                        <div class="demo-controls">
+                            <label>
+                                <span data-i18n="s3c_freq_label">Frecuencia:</span>
+                                <input type="range" id="freqSlider" min="80" max="880" value="220" step="1">
+                                <span class="value-display" id="freqVal">220 Hz</span>
+                            </label>
+                            <label>
+                                <span>N =</span>
+                                <span class="value-display" id="freqSamples">200</span>
+                                <span data-i18n="s3c_samples_label">muestras</span>
+                            </label>
+                            <button class="btn btn-primary btn-sm" id="btnPlayFreq" data-i18n="s3c_btn_play">Tocar nota</button>
+                        </div>
+                        <div class="demo-controls mt-1">
+                            <span data-i18n="s3c_low">Grave</span>
+                            <span style="flex:1"></span>
+                            <span data-i18n="s3c_note_display">Nota:</span>
+                            <span class="value-display" id="noteDisplay">A3</span>
+                            <span style="flex:1"></span>
+                            <span data-i18n="s3c_high">Agudo</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4 -->
+            <section id="sec4" class="learn-section">
+                <h2 data-i18n="s4_title">4. El coraz&oacute;n del algoritmo</h2>
+                <p data-i18n="s4_intro">Ahora viene la magia. Veremos c&oacute;mo combinar el ruido con un bucle circular y un filtro simple para crear sonidos musicales.</p>
+
+                <div id="sec4a" style="scroll-margin-top: 5rem;">
+                    <h3 data-i18n="s4a_title" style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: .75rem; color: var(--c-accent);">4a. El buffer circular</h3>
+                    <p data-i18n="s4a_p1">Tomamos nuestro trozo de ruido y lo ponemos en un bucle circular (como una cinta sin fin). El "cabezal de lectura" recorre las muestras una y otra vez.</p>
+                    <p data-i18n="s4a_p2">Mira c&oacute;mo el cabezal (punto rojo) recorre el buffer circular:</p>
+                    <div class="demo-box">
+                        <div class="ring-buffer-vis">
+                            <canvas id="ringBufferCanvas"></canvas>
+                        </div>
+                        <div class="demo-controls">
+                            <button class="btn btn-primary btn-sm" id="btnPlayRing" data-i18n="s4a_btn_play">Reproducir Loop</button>
+                            <button class="btn btn-secondary btn-sm" id="btnStopRing" data-i18n="s4a_btn_stop">Detener</button>
+                            <label>
+                                <span data-i18n="s4a_speed_label">Velocidad:</span>
+                                <input type="range" id="ringSpeed" min="1" max="10" value="5">
+                                <span class="value-display" id="ringSpeedVal">5x</span>
+                            </label>
+                        </div>
+                    </div>
+                    <p class="transition-text" data-i18n="s4a_transition">Sin filtro, el loop suena como ruido repetido. Pero cuando aplicamos el promediado en cada pasada, algo m&aacute;gico sucede...</p>
+                </div>
+
+                <div id="sec4b" style="scroll-margin-top: 5rem;">
+                    <h3 data-i18n="s4b_title" style="font-size: 1.2rem; margin-top: 2.5rem; margin-bottom: .75rem; color: var(--c-accent);">4b. El filtro pasada a pasada</h3>
+                    <p data-i18n="s4b_p1">Cada vez que el cabezal recorre el bucle completo, aplicamos un filtro muy simple:</p>
+                    <div class="formula-box">
+                        $$Y[i] = \frac{Y[i] + Y[i+1]}{2}$$
+                        <p data-i18n="s4b_formula_explain">Esto significa: cada muestra se reemplaza por el promedio entre ella y la siguiente. Es como difuminar una imagen &mdash; cada pasada suaviza m&aacute;s.</p>
+                    </div>
+                    <p data-i18n="s4b_p2">Mira c&oacute;mo el ruido se transforma en una onda suave. &iexcl;Escucha en diferentes pasadas para o&iacute;r c&oacute;mo emerge el tono!</p>
+                    <div class="demo-box">
+                        <canvas id="filterCanvas"></canvas>
+                        <div class="demo-controls">
+                            <div class="slider-with-marks">
+                                <label style="width: 100%;">
+                                    <span data-i18n="s4b_pass_label">Pasadas del filtro:</span>
+                                    <input type="range" id="filterPasses" min="0" max="60" value="0" step="1" style="width: 100%;">
+                                    <span class="value-display" id="filterPassVal">0</span>
+                                </label>
+                                <div class="slider-marks">
+                                    <span class="slider-mark">0</span>
+                                    <span class="slider-mark">5</span>
+                                    <span class="slider-mark">10</span>
+                                    <span class="slider-mark">20</span>
+                                    <span class="slider-mark">40</span>
+                                    <span class="slider-mark">60</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="demo-controls mt-1">
+                            <button class="btn btn-primary btn-sm" id="btnAnimate" data-i18n="s4b_btn_animate">Animar filtrado</button>
+                            <button class="btn btn-secondary btn-sm" id="btnResetFilter" data-i18n="s4b_btn_reset">Reiniciar</button>
+                            <button class="btn btn-accent2 btn-sm" id="btnListenPass" data-i18n="s4b_btn_listen">Escuchar esta pasada</button>
+                        </div>
+                    </div>
+                    <p class="transition-text" data-i18n="s4b_transition">Despu&eacute;s de unas pocas pasadas, &iexcl;el ruido aleatorio se convierte en una nota musical! Pero, &iquest;cu&aacute;nto tiempo dura ese sonido?</p>
+                </div>
+
+                <div id="sec4c" style="scroll-margin-top: 5rem;">
+                    <h3 data-i18n="s4c_title" style="font-size: 1.2rem; margin-top: 2.5rem; margin-bottom: .75rem; color: var(--c-accent);">4c. El decaimiento</h3>
+                    <p data-i18n="s4c_p1">El factor de decaimiento controla qu&eacute; tan r&aacute;pido se apaga el sonido. Recuerda la f&oacute;rmula del filtro:</p>
+                    <div class="formula-box">
+                        $$Y[i] = \frac{Y[i] + Y[i+1]}{d}$$
+                        <p data-i18n="s4c_formula_explain">Donde $d$ es el factor de decaimiento. Un valor cercano a 2.0 (el m&iacute;nimo, promedio puro) produce decaimiento lento. Un valor m&aacute;s alto (2.3, 2.5) pierde m&aacute;s energ&iacute;a en cada pasada y se apaga r&aacute;pido.</p>
+                    </div>
+                    <p data-i18n="s4c_p2">Compara c&oacute;mo cambia la forma de onda con diferentes valores de decaimiento:</p>
+                    <div class="comparison-panel">
+                        <div class="comparison-item">
+                            <h4 data-i18n="s4c_decay_slow">Decay = 2.00 (Lento)</h4>
+                            <canvas id="decayCanvas1"></canvas>
+                        </div>
+                        <div class="comparison-item">
+                            <h4 data-i18n="s4c_decay_medium">Decay = 2.10 (Medio)</h4>
+                            <canvas id="decayCanvas2"></canvas>
+                        </div>
+                        <div class="comparison-item">
+                            <h4 data-i18n="s4c_decay_fast">Decay = 2.20 (R&aacute;pido)</h4>
+                            <canvas id="decayCanvas3"></canvas>
+                        </div>
+                    </div>
+                    <div class="demo-box">
+                        <canvas id="decayCanvas"></canvas>
+                        <div class="demo-controls">
+                            <label>
+                                <span data-i18n="s4c_decay_label">Decaimiento:</span>
+                                <input type="range" id="decaySlider" min="2.0" max="2.5" value="2.0" step="0.01">
+                                <span class="value-display" id="decayVal">2.00</span>
+                            </label>
+                            <span data-i18n="s4c_long">Largo</span>
+                            <span style="flex:1"></span>
+                            <span data-i18n="s4c_short">Corto</span>
+                            <button class="btn btn-primary btn-sm" id="btnPlayDecay" data-i18n="s4c_btn_play">Escuchar</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5 -->
+            <section id="sec5" class="learn-section">
+                <h2 data-i18n="s5_title">5. El espectro: ver dentro del sonido</h2>
+                <p data-i18n="s5_p1">Hasta ahora hemos visto las ondas en el tiempo (waveforms). Pero hay otra forma de ver el sonido: en el dominio de la frecuencia. Esto nos muestra QU&Eacute; frecuencias componen un sonido.</p>
+                <p data-i18n="s5_p2">El ruido inicial tiene TODAS las frecuencias por igual (espectro plano). Despu&eacute;s del filtrado, solo quedan ciertas frecuencias: la fundamental (la nota que escuchamos) y sus arm&oacute;nicos (m&uacute;ltiplos de la fundamental).</p>
+                <div class="demo-box">
+                    <canvas id="spectrumCanvas" class="tall"></canvas>
+                    <div class="demo-controls">
+                        <label>
+                            <span data-i18n="s5_passes_label">Pasadas del filtro:</span>
+                            <input type="range" id="spectrumPasses" min="0" max="50" value="0" step="1">
+                            <span class="value-display" id="spectrumPassesVal">0</span>
+                        </label>
+                        <button class="btn btn-primary btn-sm" id="btnUpdateSpectrum" data-i18n="s5_btn_update">Actualizar espectro</button>
+                    </div>
+                    <div class="demo-controls mt-1">
+                        <div class="spectrum-label" data-i18n="s5_spectrum_note">Arriba: Forma de onda | Abajo: Espectro de frecuencias</div>
+                    </div>
+                </div>
+                <div class="info-box tip">
+                    <div class="info-box-title" data-i18n="s5_info_title">Entendiendo el espectro</div>
+                    <div class="info-box-content">
+                        <p data-i18n="s5_info_1"><strong>Pasada 0 (ruido):</strong> Espectro plano &mdash; todas las frecuencias tienen la misma energ&iacute;a.</p>
+                        <p data-i18n="s5_info_2"><strong>Pasadas 5-10:</strong> Empiezan a emerger picos en la fundamental y arm&oacute;nicos.</p>
+                        <p data-i18n="s5_info_3"><strong>Pasadas 20+:</strong> Espectro definido &mdash; solo quedan las frecuencias de la nota musical.</p>
+                    </div>
+                </div>
+                <p class="transition-text" data-i18n="s5_transition">El filtro Karplus-Strong act&uacute;a como un "peine" que solo deja pasar ciertas frecuencias. &iexcl;Por eso el ruido se convierte en una nota!</p>
+            </section>
+
+            <!-- Section 6 -->
+            <section id="sec6" class="learn-section">
+                <h2 data-i18n="s6_title">6. Afinando el sonido: hacia una guitarra real</h2>
+                <p data-i18n="s6_p1">El algoritmo b&aacute;sico de Karplus-Strong ya suena sorprendentemente bien. Pero podemos hacerlo a&uacute;n m&aacute;s realista agregando par&aacute;metros que simulan propiedades f&iacute;sicas de una cuerda real.</p>
+                <div class="param-grid">
+                    <div class="param-card">
+                        <h4 data-i18n="s6_pluck_title">Posici&oacute;n del punteo</h4>
+                        <p data-i18n="s6_pluck_desc">Donde "pellizcan" la cuerda. Cerca del centro (0.5) suena c&aacute;lido. Cerca del puente (0.1) suena nasal y brillante.</p>
+                        <div class="param-controls">
+                            <label>
+                                <span data-i18n="s6_pluck_label">Posici&oacute;n:</span>
+                                <input type="range" id="pluckPos" min="0.1" max="0.9" value="0.5" step="0.05">
+                                <span class="value-display" id="pluckPosVal">0.5</span>
+                            </label>
+                            <div class="ab-toggle">
+                                <button data-mode="A" data-i18n="s6_pluck_center">Centro (0.5)</button>
+                                <button data-mode="B" data-i18n="s6_pluck_bridge">Puente (0.1)</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="param-card">
+                        <h4 data-i18n="s6_stiff_title">Rigidez de la cuerda</h4>
+                        <p data-i18n="s6_stiff_desc">Las cuerdas reales no son perfectamente flexibles. La rigidez desafina ligeramente los arm&oacute;nicos agudos, dando un timbre m&aacute;s org&aacute;nico.</p>
+                        <div class="param-controls">
+                            <label>
+                                <span data-i18n="s6_stiff_label">Rigidez:</span>
+                                <input type="range" id="stiffness" min="0" max="0.1" value="0" step="0.005">
+                                <span class="value-display" id="stiffnessVal">0.00</span>
+                            </label>
+                            <div class="ab-toggle">
+                                <button data-mode="A" data-i18n="s6_stiff_none">Sin (0.0)</button>
+                                <button data-mode="B" data-i18n="s6_stiff_high">Alta (0.04)</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="param-card">
+                        <h4 data-i18n="s6_body_title">Resonancia de la caja</h4>
+                        <p data-i18n="s6_body_desc">La caja de resonancia de la guitarra amplifica ciertas frecuencias (formantes). Esto da riqueza y profundidad al sonido.</p>
+                        <div class="param-controls">
+                            <label>
+                                <span data-i18n="s6_body_label">Intensidad:</span>
+                                <input type="range" id="bodyRes" min="0" max="1" value="0" step="0.05">
+                                <span class="value-display" id="bodyResVal">0.0</span>
+                            </label>
+                            <div class="ab-toggle">
+                                <button data-mode="A" data-i18n="s6_body_none">Sin (0.0)</button>
+                                <button data-mode="B" data-i18n="s6_body_high">Alta (0.7)</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="param-card">
+                        <h4 data-i18n="s6_bright_title">Brillo</h4>
+                        <p data-i18n="s6_bright_desc">Controla cu&aacute;ntas frecuencias agudas se mantienen. Valores bajos suenan apagados (cuerda vieja), valores altos suenan brillantes (cuerda nueva).</p>
+                        <div class="param-controls">
+                            <label>
+                                <span data-i18n="s6_bright_label">Frecuencia de corte:</span>
+                                <input type="range" id="brightness" min="1000" max="10000" value="5000" step="100">
+                                <span class="value-display" id="brightnessVal">5000 Hz</span>
+                            </label>
+                            <div class="ab-toggle">
+                                <button data-mode="A" data-i18n="s6_bright_dull">Apagado (2000)</button>
+                                <button data-mode="B" data-i18n="s6_bright_bright">Brillante (8000)</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="demo-box">
+                    <canvas id="advancedCanvas"></canvas>
+                    <div class="demo-controls">
+                        <button class="btn btn-accent2" id="btnPlayAdvanced" data-i18n="s6_btn_play">Tocar con par&aacute;metros avanzados</button>
+                        <button class="btn btn-secondary btn-sm" id="btnResetParams" data-i18n="s6_btn_reset">Resetear todo</button>
+                    </div>
+                </div>
+                <p class="mt-3" data-i18n="s6_p2">Experimenta con diferentes combinaciones. Cada instrumento de cuerda tiene su propia "firma" en estos par&aacute;metros.</p>
+            </section>
+
+            <!-- Section 7 -->
+            <section id="sec7" class="learn-section">
+                <h2 data-i18n="s7_title">7. S&iacute;ntesis completa: todo junto</h2>
+                <p data-i18n="s7_p1">Ahora combinemos todo. Todos los par&aacute;metros que vimos est&aacute;n disponibles. &iexcl;Crea el sonido de tu instrumento ideal!</p>
+                <div style="margin: 2rem 0;">
+                    <h3 data-i18n="s7_presets_title" style="font-size: 1.05rem; margin-bottom: .5rem;">Ejemplos de instrumentos realistas</h3>
+                    <p data-i18n="s7_presets_desc" style="color: var(--c-text-dim); font-size: .9rem; margin-bottom: 1rem;">Escucha c&oacute;mo diferentes par&aacute;metros crean diferentes instrumentos.</p>
+                    <div class="preset-grid">
+                        <div class="preset-card" data-preset="guitar-classic">
+                            <h4 data-i18n="s7_preset_guitar_classic">Guitarra Cl&aacute;sica</h4>
+                            <p data-i18n="s7_preset_guitar_classic_desc">C&aacute;lida y resonante</p>
+                        </div>
+                        <div class="preset-card" data-preset="guitar-acoustic">
+                            <h4 data-i18n="s7_preset_guitar_acoustic">Guitarra Ac&uacute;stica</h4>
+                            <p data-i18n="s7_preset_guitar_acoustic_desc">Brillante y at&aacute;cante</p>
+                        </div>
+                        <div class="preset-card" data-preset="harp">
+                            <h4 data-i18n="s7_preset_harp">Arpa</h4>
+                            <p data-i18n="s7_preset_harp_desc">Cristalina, decae r&aacute;pido</p>
+                        </div>
+                        <div class="preset-card" data-preset="bass">
+                            <h4 data-i18n="s7_preset_bass">Bajo El&eacute;ctrico</h4>
+                            <p data-i18n="s7_preset_bass_desc">Profundo y punchante</p>
+                        </div>
+                        <div class="preset-card" data-preset="banjo">
+                            <h4 data-i18n="s7_preset_banjo">Banjo</h4>
+                            <p data-i18n="s7_preset_banjo_desc">Corto y percusivo</p>
+                        </div>
+                        <div class="preset-card" data-preset="sitar">
+                            <h4 data-i18n="s7_preset_sitar">Sitar</h4>
+                            <p data-i18n="s7_preset_sitar_desc">Ex&oacute;tico y resonante</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="demo-box">
+                    <canvas id="synthCanvas"></canvas>
+                    <div class="demo-controls">
+                        <label>
+                            <span data-i18n="s7_freq">Frecuencia</span>
+                            <input type="range" id="synthFreq" min="80" max="880" value="220" step="1">
+                            <span class="value-display" id="synthFreqVal">220 Hz</span>
+                        </label>
+                        <label>
+                            <span data-i18n="s7_decay">Decaimiento</span>
+                            <input type="range" id="synthDecay" min="2.0" max="2.5" value="2.005" step="0.001">
+                            <span class="value-display" id="synthDecayVal">2.005</span>
+                        </label>
+                        <label>
+                            <span data-i18n="s7_duration">Duraci&oacute;n</span>
+                            <input type="range" id="synthDuration" min="0.5" max="6" value="3" step="0.1">
+                            <span class="value-display" id="synthDurVal">3.0s</span>
+                        </label>
+                    </div>
+                    <div class="demo-controls mt-1">
+                        <button class="btn btn-accent2" id="btnSynth" data-i18n="s7_btn_play">Tocar cuerda</button>
+                    </div>
+                </div>
+                <p class="mt-3" data-i18n="s7_p2">Felicidades &mdash; acabas de sintetizar el sonido de una cuerda pulsada usando solo matem&aacute;ticas. Este es el mismo principio que usan los sintetizadores profesionales. &iexcl;Ahora ve a la secci&oacute;n Componer para crear tu propia m&uacute;sica!</p>
+            </section>
+
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p data-i18n="footer">Karplus-Strong Synthesizer &copy; 2026</p>
+        <p class="footer-sub" data-i18n="footer_sub">Herramienta educativa interactiva para aprender procesamiento digital de se&ntilde;ales</p>
+    </footer>
+
+    <script src="./js/i18n/strings.js"></script>
+    <script src="./js/app.js"></script>
+    <script src="./js/audio/synth.js"></script>
+    <script src="./js/learn/controller.js"></script>
+</body>
+</html>

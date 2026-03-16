@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karplus-Strong - Compose</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tone@14.7.77/build/Tone.min.js"></script>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="./index.html" class="nav-brand">Karplus-Strong</a>
+            <div class="nav-links">
+                <a href="./learn.html" data-i18n="nav_learn">Aprender</a>
+                <a href="./compose.html" data-i18n="nav_compose">Componer</a>
+                <button id="langToggle" class="lang-toggle" title="Toggle language">
+                    <span id="langLabel">ES</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="compose-page">
+            <h1 data-i18n="compose_title">Componer M&uacute;sica</h1>
+            <p class="desc" data-i18n="compose_desc">Haz clic en la cuadr&iacute;cula para colocar notas. Clic de nuevo para quitar. Arrastra para extender duraci&oacute;n.</p>
+
+            <div class="compose-toolbar">
+                <button class="btn btn-primary btn-sm" id="btnPlay" data-i18n="play">Reproducir</button>
+                <button class="btn btn-secondary btn-sm" id="btnStop" data-i18n="stop">Detener</button>
+                <div class="separator"></div>
+                <label>
+                    BPM
+                    <input type="range" id="bpmSlider" min="40" max="200" value="120">
+                    <span class="value-display" id="bpmVal">120</span>
+                </label>
+                <label>
+                    <span data-i18n="decay">Decaimiento</span>
+                    <input type="range" id="composeDecay" min="2.0" max="2.5" value="2.0" step="0.01">
+                    <span class="value-display" id="composeDecayVal">2.00</span>
+                </label>
+                <div class="separator"></div>
+                <label>
+                    <span data-i18n="preset">Presets</span>
+                    <select id="presetSelect">
+                        <option value="" data-i18n="select_preset">Selecciona un preset...</option>
+                        <option value="scale" data-i18n="preset_scale">Escala DO Mayor</option>
+                        <option value="matlab" data-i18n="preset_matlab">Canci&oacute;n Demo MATLAB</option>
+                    </select>
+                </label>
+                <div class="separator"></div>
+                <button class="btn btn-secondary btn-sm" id="btnClear" data-i18n="clear">Limpiar</button>
+                <button class="btn btn-accent2 btn-sm" id="btnSave" data-i18n="save">Guardar</button>
+            </div>
+
+            <div class="piano-roll-wrapper">
+                <canvas id="pianoRoll"></canvas>
+            </div>
+
+            <div class="compose-tips">
+                <h3 data-i18n="tips_title">Consejos</h3>
+                <ul>
+                    <li data-i18n="tip_1">Las notas se ajustan a la cuadr&iacute;cula de semicorcheas</li>
+                    <li data-i18n="tip_2">Decaimiento bajo = sonido se apaga r&aacute;pido</li>
+                    <li data-i18n="tip_3">Prueba BPM entre 60-180 para mejores resultados</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p data-i18n="footer">Karplus-Strong Synthesizer &copy; 2026</p>
+        <p class="footer-sub" data-i18n="footer_sub">Herramienta educativa interactiva para aprender procesamiento digital de se&ntilde;ales</p>
+    </footer>
+
+    <script src="./js/config.js"></script>
+    <script src="./js/i18n/strings.js"></script>
+    <script src="./js/app.js"></script>
+    <script src="./js/audio/synth.js"></script>
+    <script src="./js/pianoroll/editor.js"></script>
+    <script src="./js/api/client.js"></script>
+    <script src="./js/compose/controller.js"></script>
+</body>
+</html>
