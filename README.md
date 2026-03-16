@@ -102,6 +102,32 @@ The decay factor `d` controls how quickly the sound fades. Values near 2.0 produ
 - **Database**: PostgreSQL (production), SQLite (development)
 - **Infrastructure**: Docker, nginx, Railway
 
+```markdown
+## Testing
+
+The backend has 38 tests covering models, serializers, views, authentication, and the presets endpoint.
+
+```bash
+cd backend
+source .venv/bin/activate
+python manage.py test
+```
+
+### What's tested
+
+| Module | Tests | Covers |
+|--------|-------|--------|
+| `test_models.py` | 10 | Song creation, ordering, validation (bpm 30–300, decay 0.9–0.999), bilingual descriptions, user FK |
+| `test_serializers.py` | 11 | Valid/invalid data, empty title, bpm/decay out of range, is_preset read-only, note JSON structure validation |
+| `test_views.py` | 17 | CRUD, pagination, search, auth (401 on anonymous create, user isolation, can't delete others' songs), register, JWT obtain/refresh, presets endpoint, health check |
+
+Run a single test file:
+
+```bash
+python manage.py test songs.tests.test_views
+```
+```
+
 ## Project Structure
 
 ```
