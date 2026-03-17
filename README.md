@@ -102,12 +102,11 @@ The decay factor `d` controls how quickly the sound fades. Values near 2.0 produ
 - **Database**: PostgreSQL (production), SQLite (development)
 - **Infrastructure**: Docker, nginx, Railway
 
-```markdown
 ## Testing
 
 The backend has 38 tests covering models, serializers, views, authentication, and the presets endpoint.
 
-```bash
+```
 cd backend
 source .venv/bin/activate
 python manage.py test
@@ -125,7 +124,6 @@ Run a single test file:
 
 ```bash
 python manage.py test songs.tests.test_views
-```
 ```
 
 ## Project Structure

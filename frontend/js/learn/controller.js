@@ -1,67 +1,6 @@
 // Interactive demos for the Learn page
 // Extracted from learn/index.html inline script
-
-// -- Helpers --
-function getCanvas(id) {
-    const c = document.getElementById(id);
-    c.width = c.offsetWidth * (window.devicePixelRatio || 1);
-    c.height = c.offsetHeight * (window.devicePixelRatio || 1);
-    const ctx = c.getContext('2d');
-    ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
-    return { canvas: c, ctx, w: c.offsetWidth, h: c.offsetHeight };
-}
-
-function drawWaveform(ctx, w, h, data, color = '#7c5cfc', options = {}) {
-    const { dots = false, lineWidth = 2, yScale = 0.85 } = options;
-    ctx.clearRect(0, 0, w, h);
-
-    // Background grid
-    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-    ctx.lineWidth = 1;
-    for (let y = 0; y <= 4; y++) {
-        ctx.beginPath();
-        ctx.moveTo(0, h * y / 4);
-        ctx.lineTo(w, h * y / 4);
-        ctx.stroke();
-    }
-    // Zero line
-    ctx.strokeStyle = 'rgba(255,255,255,0.12)';
-    ctx.beginPath();
-    ctx.moveTo(0, h / 2);
-    ctx.lineTo(w, h / 2);
-    ctx.stroke();
-
-    if (!data || data.length === 0) return;
-
-    const N = data.length;
-    const step = w / (N - 1 || 1);
-    const mid = h / 2;
-    const amp = mid * yScale;
-
-    // Draw line
-    ctx.strokeStyle = color;
-    ctx.lineWidth = lineWidth;
-    ctx.lineJoin = 'round';
-    ctx.beginPath();
-    for (let i = 0; i < N; i++) {
-        const x = i * step;
-        const y = mid - data[i] * amp;
-        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-
-    // Draw dots if requested
-    if (dots && N < 200) {
-        ctx.fillStyle = color;
-        for (let i = 0; i < N; i++) {
-            const x = i * step;
-            const y = mid - data[i] * amp;
-            ctx.beginPath();
-            ctx.arc(x, y, 2.5, 0, Math.PI * 2);
-            ctx.fill();
-        }
-    }
-}
+// getCanvas() and drawWaveform() are loaded from js/utils/waveform-draw.js
 
 // Map frequency to note name
 function freqToNote(freq) {
@@ -109,37 +48,105 @@ function initSineDemo() {
 
 // ========== DEMO: Sampling Visualization (Section 3b) ==========
 function initSamplingDemo() {
-    const slider = document.getElementById('samplingZoom');
-    const valSpan = document.getElementById('samplingZoomVal');
+    const slider = document.getElementById('samplingRate');
+    const valSpan = document.getElementById('samplingRateVal');
+    const zoomSlider = document.getElementById('samplingZoom');
+    const zoomVal = document.getElementById('samplingZoomVal');
+    const cyclesLabels = { es: ['3 ciclos', '2 ciclos', '1 ciclo', '\u00bd ciclo', '\u00bc ciclo', '\u215b ciclo'], en: ['3 cycles', '2 cycles', '1 cycle', '\u00bd cycle', '\u00bc cycle', '\u215b cycle'] };
+    const cyclesValues = [3, 2, 1, 0.5, 0.25, 0.125];
 
     function drawSampling() {
-        const zoom = parseInt(slider.value);
-        valSpan.textContent = zoom + 'x';
+        const sampleRate = parseInt(slider.value);
+        valSpan.textContent = sampleRate.toLocaleString() + ' Hz';
+        const zoomIdx = parseInt(zoomSlider.value) - 1;
+        const labels = cyclesLabels[currentLang] || cyclesLabels.es;
+        zoomVal.textContent = labels[zoomIdx];
         const { ctx, w, h } = getCanvas('samplingCanvas');
         const freq = 220;
-        const sampleRate = 44100;
-        const pointsToShow = Math.floor(400 / zoom);
-        const data = new Float32Array(pointsToShow);
-        for (let i = 0; i < pointsToShow; i++) {
-            const t = (i / sampleRate) * 2 * Math.PI * freq;
-            data[i] = Math.sin(t);
-        }
-        drawWaveform(ctx, w, h, data, '#7c5cfc', { lineWidth: 2 });
-        const samplingDots = Math.floor(pointsToShow / (20 / zoom));
-        ctx.fillStyle = '#ff9500';
-        const step = w / (pointsToShow - 1 || 1);
         const mid = h / 2;
         const amp = mid * 0.85;
-        for (let i = 0; i < pointsToShow; i += Math.max(1, Math.floor(pointsToShow / samplingDots))) {
-            const x = i * step;
-            const y = mid - data[i] * amp;
+
+        // Number of cycles based on zoom
+        const timeWindow = cyclesValues[zoomIdx] / freq;
+        const totalSamples = Math.floor(timeWindow * sampleRate);
+        const dotRadius = totalSamples < 40 ? 5 : totalSamples < 100 ? 3.5 : 2;
+
+        // Background
+        ctx.clearRect(0, 0, w, h);
+        ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+        ctx.lineWidth = 1;
+        for (let y = 0; y <= 4; y++) {
             ctx.beginPath();
-            ctx.arc(x, y, 3, 0, Math.PI * 2);
+            ctx.moveTo(0, h * y / 4);
+            ctx.lineTo(w, h * y / 4);
+            ctx.stroke();
+        }
+        ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+        ctx.beginPath();
+        ctx.moveTo(0, mid);
+        ctx.lineTo(w, mid);
+        ctx.stroke();
+
+        // 1) Smooth continuous sine wave (the "real" analog signal)
+        ctx.strokeStyle = 'rgba(124, 92, 252, 0.35)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let i = 0; i < 600; i++) {
+            const t = (i / 600) * timeWindow;
+            const x = (i / 600) * w;
+            const y = mid - Math.sin(2 * Math.PI * freq * t) * amp;
+            if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        // 2) Connect the sample dots with lines (the "digital" reconstruction)
+        ctx.strokeStyle = '#ff9500';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        for (let i = 0; i <= totalSamples; i++) {
+            const t = i / sampleRate;
+            const x = (t / timeWindow) * w;
+            if (x > w) break;
+            const y = mid - Math.sin(2 * Math.PI * freq * t) * amp;
+            if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        // 3) Vertical stems from zero line to each sample
+        ctx.strokeStyle = 'rgba(255, 149, 0, 0.2)';
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= totalSamples; i++) {
+            const t = i / sampleRate;
+            const x = (t / timeWindow) * w;
+            if (x > w) break;
+            const y = mid - Math.sin(2 * Math.PI * freq * t) * amp;
+            ctx.beginPath();
+            ctx.moveTo(x, mid);
+            ctx.lineTo(x, y);
+            ctx.stroke();
+        }
+
+        // 4) Orange sample dots on top
+        ctx.fillStyle = '#ff9500';
+        for (let i = 0; i <= totalSamples; i++) {
+            const t = i / sampleRate;
+            const x = (t / timeWindow) * w;
+            if (x > w) break;
+            const y = mid - Math.sin(2 * Math.PI * freq * t) * amp;
+            ctx.beginPath();
+            ctx.arc(x, y, dotRadius, 0, Math.PI * 2);
             ctx.fill();
         }
+
+        // 5) Show sample count
+        ctx.fillStyle = '#8b90a5';
+        ctx.font = '11px Inter';
+        ctx.textAlign = 'right';
+        ctx.fillText(totalSamples + ' samples', w - 10, 15);
     }
 
     slider.addEventListener('input', drawSampling);
+    zoomSlider.addEventListener('input', drawSampling);
     drawSampling();
 }
 

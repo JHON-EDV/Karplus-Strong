@@ -63,6 +63,8 @@
                 <h2 data-i18n="s1_title">1. &iquest;Qu&eacute; vamos a hacer?</h2>
                 <p data-i18n="s1_p1">Imagina que pulsas una cuerda de guitarra. Escuchas un sonido que empieza fuerte y poco a poco se apaga. &iquest;C&oacute;mo podr&iacute;amos recrear ese sonido con una computadora?</p>
                 <p data-i18n="s1_p2">En 1983, Kevin Karplus y Alex Strong descubrieron un truco genial: si tomas un peque&ntilde;o trozo de ruido aleatorio y lo pasas una y otra vez por un filtro que lo suaviza, el resultado suena como una cuerda pulsada.</p>
+                <p data-i18n="s1_p2b">Este algoritmo todav&iacute;a se usa hoy en sintetizadores, audio de videojuegos y software de producci&oacute;n musical. Es uno de los ejemplos m&aacute;s simples de s&iacute;ntesis por modelado f&iacute;sico &mdash; usar matem&aacute;ticas para simular c&oacute;mo se comporta un objeto f&iacute;sico real (una cuerda).</p>
+                <p data-i18n="s1_p2c">En las siguientes secciones, construiremos el algoritmo pieza por pieza. Al final, entender&aacute;s cada parte y podr&aacute;s crear tus propios sonidos de instrumentos.</p>
                 <p data-i18n="s1_p3">El proceso tiene 3 pasos:</p>
                 <div class="steps">
                     <div class="step-card">
@@ -87,6 +89,8 @@
             <section id="sec2" class="learn-section">
                 <h2 data-i18n="s2_title">2. El ruido: la materia prima</h2>
                 <p data-i18n="s2_p1">Todo empieza con ruido &mdash; n&uacute;meros aleatorios. Piensa en la est&aacute;tica de una TV vieja, o el sonido &quot;shhh&quot; entre estaciones de radio. Eso es ruido blanco: valores al azar que suben y bajan sin patr&oacute;n.</p>
+                <p data-i18n="s2_p1b">&iquest;Por qu&eacute; se llama ruido &quot;blanco&quot;? As&iacute; como la luz blanca contiene todos los colores mezclados, el ruido blanco contiene todas las frecuencias de sonido mezcladas. Es el &quot;todo a la vez&quot; del sonido.</p>
+                <p data-i18n="s2_p1c">En una computadora, representamos el sonido como una lista de n&uacute;meros. Cada n&uacute;mero le dice al parlante qu&eacute; tanto empujar el aire en ese instante. N&uacute;meros positivos empujan el parlante hacia afuera, n&uacute;meros negativos lo jalan hacia adentro. N&uacute;meros aleatorios = empujones aleatorios = ruido.</p>
                 <p data-i18n="s2_p2">A nuestro algoritmo le damos un trozo peque&ntilde;o de este ruido. &iquest;Qu&eacute; tan peque&ntilde;o? Eso depende de la nota que queremos tocar (lo veremos en la siguiente secci&oacute;n).</p>
                 <div class="demo-box">
                     <canvas id="noiseCanvas"></canvas>
@@ -106,6 +110,7 @@
                     </div>
                 </div>
                 <p data-i18n="s2_p3">El gr&aacute;fico de arriba muestra el ruido: cada punto es un n&uacute;mero aleatorio entre -1 y 1. No tiene forma, no tiene patr&oacute;n. Pero es exactamente lo que necesitamos como punto de partida.</p>
+                <p data-i18n="s2_p3b">Quiz&aacute;s te preguntes: &iquest;c&oacute;mo puede el ruido aleatorio convertirse en una nota musical? El secreto est&aacute; en CU&Aacute;NTO ruido usamos. Un trozo corto de ruido se convertir&aacute; en una nota aguda, y un trozo m&aacute;s largo se convertir&aacute; en una nota grave. Veamos por qu&eacute;.</p>
             </section>
 
             <!-- Section 3 -->
@@ -115,6 +120,8 @@
                 <div id="sec3a" style="scroll-margin-top: 5rem;">
                     <h3 data-i18n="s3a_title" style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: .75rem; color: var(--c-accent);">3a. &iquest;Qu&eacute; es una onda?</h3>
                     <p data-i18n="s3a_p1">Cuando tocas una cuerda, el aire vibra. Esas vibraciones son ondas. Mientras m&aacute;s r&aacute;pido vibra, m&aacute;s agudo es el sonido.</p>
+                    <p data-i18n="s3a_p1b">Piensa en dejar caer una piedra en el agua. Las ondas se expanden &mdash; crestas y valles altern&aacute;ndose. El sonido funciona igual, pero en vez de agua, son mol&eacute;culas de aire empuj&aacute;ndose de un lado a otro. Cuando esas ondas de aire llegan a tu o&iacute;do, tu cerebro las interpreta como sonido.</p>
+                    <p data-i18n="s3a_p1c">Una cuerda gruesa de guitarra vibra lentamente &mdash; escuchas un sonido grave y profundo. Una cuerda delgada vibra r&aacute;pido &mdash; escuchas un sonido agudo y brillante. Esta velocidad de vibraci&oacute;n es lo que los m&uacute;sicos llaman &quot;tono&quot; o &quot;altura&quot;.</p>
                     <p data-i18n="s3a_p2">La frecuencia mide qu&eacute; tan r&aacute;pido vibra algo. Se mide en Hertz (Hz) = vibraciones por segundo. Mira esta onda pura:</p>
                     <div class="demo-box">
                         <canvas id="sineCanvas"></canvas>
@@ -134,15 +141,25 @@
                     <h3 data-i18n="s3b_title" style="font-size: 1.2rem; margin-top: 2.5rem; margin-bottom: .75rem; color: var(--c-accent);">3b. De anal&oacute;gico a digital</h3>
                     <p data-i18n="s3b_p1">Una onda de sonido real es continua, fluye sin pausas. Pero una computadora no puede guardar algo continuo &mdash; necesita n&uacute;meros.</p>
                     <p data-i18n="s3b_p2">La soluci&oacute;n: tomar instant&aacute;neas (muestras) de la onda miles de veces por segundo. Es como tomar fotos de algo que se mueve r&aacute;pido.</p>
+                    <p data-i18n="s3b_p2b">&iquest;Por qu&eacute; exactamente 44,100? El o&iacute;do humano puede escuchar frecuencias hasta unos 20,000 Hz. Una regla matem&aacute;tica llamada el teorema de Nyquist dice que necesitamos al menos el DOBLE de muestras por segundo para capturar el sonido con precisi&oacute;n. 2 &times; 20,000 = 40,000, m&aacute;s un poco de margen = 44,100. Esta es la misma tasa de muestreo que usan los CDs y la mayor&iacute;a del audio digital.</p>
                     <div class="demo-box">
                         <canvas id="samplingCanvas"></canvas>
                         <div class="demo-controls">
                             <label>
-                                <span data-i18n="s3b_zoom_label">Acercar:</span>
-                                <input type="range" id="samplingZoom" min="1" max="10" value="1" step="1">
-                                <span class="value-display" id="samplingZoomVal">1x</span>
+                                <span data-i18n="s3b_rate_label">Tasa de muestreo:</span>
+                                <input type="range" id="samplingRate" min="500" max="44100" value="4000" step="500">
+                                <span class="value-display" id="samplingRateVal">4,000 Hz</span>
                             </label>
-                            <span style="font-size: .85rem; color: var(--c-text-dim);" data-i18n="s3b_sample_rate">Tasa de muestreo: 44,100 muestras/segundo</span>
+                            <label>
+                                <span data-i18n="s3b_zoom_label">Zoom:</span>
+                                <input type="range" id="samplingZoom" min="1" max="6" value="1" step="1">
+                                <span class="value-display" id="samplingZoomVal">3 ciclos</span>
+                            </label>
+                        </div>
+                        <div class="demo-controls mt-1">
+                            <span style="font-size: .85rem; color: var(--c-text-dim);" data-i18n="s3b_rate_low">Pocas muestras</span>
+                            <span style="flex:1"></span>
+                            <span style="font-size: .85rem; color: var(--c-text-dim);" data-i18n="s3b_rate_high">Muchas muestras (CD: 44,100)</span>
                         </div>
                     </div>
                     <p data-i18n="s3b_p3">Usamos 44,100 muestras por segundo. &iexcl;Suficientes para capturar el sonido perfectamente! Los puntos naranjas muestran cada muestra:</p>
@@ -155,6 +172,7 @@
                         <p data-i18n="s3c_formula_explain">La longitud del trozo de ruido determina la frecuencia. Si queremos una nota de 440 Hz:</p>
                         $$N = \frac{f_s}{f_0} = \frac{44100}{440} = 100 \text{ muestras}$$
                     </div>
+                    <p data-i18n="s3c_p2_expanded">Pero, &iquest;POR QU&Eacute; la longitud del buffer determina la nota? Aqu&iacute; est&aacute; la clave: cuando repetimos esas 100 muestras a 44,100 muestras por segundo, el ciclo se completa 44,100 &divide; 100 = 441 veces por segundo. &iexcl;Esa tasa de repetici&oacute;n ES la frecuencia! Un ciclo m&aacute;s corto se repite m&aacute;s r&aacute;pido (nota aguda), un ciclo m&aacute;s largo se repite m&aacute;s lento (nota grave). Es como un peque&ntilde;o disco reproduci&eacute;ndose en bucle &mdash; cuanto m&aacute;s corto el disco, m&aacute;s r&aacute;pido completa el ciclo, m&aacute;s agudo el tono.</p>
                     <p data-i18n="s3c_p2">&iexcl;Solo 100 n&uacute;meros aleatorios para crear una nota musical! Mueve el slider para escuchar c&oacute;mo cambian las notas:</p>
                     <div class="demo-box">
                         <canvas id="freqCanvas"></canvas>
@@ -191,6 +209,7 @@
                 <div id="sec4a" style="scroll-margin-top: 5rem;">
                     <h3 data-i18n="s4a_title" style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: .75rem; color: var(--c-accent);">4a. El buffer circular</h3>
                     <p data-i18n="s4a_p1">Tomamos nuestro trozo de ruido y lo ponemos en un bucle circular (como una cinta sin fin). El "cabezal de lectura" recorre las muestras una y otra vez.</p>
+                    <p data-i18n="s4a_p1b">Imagina una caja de m&uacute;sica con un cilindro que tiene protuberancias. Mientras el cilindro gira, cada protuberancia pulsa un diente del peine, produciendo un sonido. Cuando el cilindro completa una rotaci&oacute;n, vuelve a empezar con las mismas protuberancias. Nuestro buffer circular funciona igual &mdash; las &quot;protuberancias&quot; son nuestras muestras de ruido, y la &quot;rotaci&oacute;n&quot; es el ciclo.</p>
                     <p data-i18n="s4a_p2">Mira c&oacute;mo el cabezal (punto rojo) recorre el buffer circular:</p>
                     <div class="demo-box">
                         <div class="ring-buffer-vis">
@@ -216,6 +235,8 @@
                         $$Y[i] = \frac{Y[i] + Y[i+1]}{2}$$
                         <p data-i18n="s4b_formula_explain">Esto significa: cada muestra se reemplaza por el promedio entre ella y la siguiente. Es como difuminar una imagen &mdash; cada pasada suaviza m&aacute;s.</p>
                     </div>
+                    <p data-i18n="s4b_p1b">Pero, &iquest;por qu&eacute; el simple promediado convierte ruido en m&uacute;sica? Pi&eacute;nsalo as&iacute;: el ruido tiene saltos bruscos &mdash; picos agudos subiendo y bajando r&aacute;pidamente. Cuando promedias cada muestra con su vecina, esos picos se suavizan. Los componentes r&aacute;pidos y agudos del ruido desaparecen primero, mientras que el patr&oacute;n lento y grave (determinado por la longitud del buffer) sobrevive. Despu&eacute;s de varias pasadas, solo queda el patr&oacute;n suave en forma de onda &mdash; &iexcl;y esa es tu nota musical!</p>
+                    <p data-i18n="s4b_p1c">Es como agitar un taz&oacute;n de arena con piedras y canicas. Los granos peque&ntilde;os de arena (frecuencias altas) se asientan r&aacute;pido, las piedras (frecuencias medias) se asientan despu&eacute;s, pero las canicas (la frecuencia fundamental de tu nota) siguen rebotando m&aacute;s tiempo.</p>
                     <p data-i18n="s4b_p2">Mira c&oacute;mo el ruido se transforma en una onda suave. &iexcl;Escucha en diferentes pasadas para o&iacute;r c&oacute;mo emerge el tono!</p>
                     <div class="demo-box">
                         <canvas id="filterCanvas"></canvas>
@@ -252,6 +273,8 @@
                         $$Y[i] = \frac{Y[i] + Y[i+1]}{d}$$
                         <p data-i18n="s4c_formula_explain">Donde $d$ es el factor de decaimiento. Un valor cercano a 2.0 (el m&iacute;nimo, promedio puro) produce decaimiento lento. Un valor m&aacute;s alto (2.3, 2.5) pierde m&aacute;s energ&iacute;a en cada pasada y se apaga r&aacute;pido.</p>
                     </div>
+                    <p data-i18n="s4c_p1b">Pi&eacute;nsalo en t&eacute;rminos de energ&iacute;a. Cuando dividimos exactamente por 2.0, conservamos TODA la energ&iacute;a (la suma de dos muestras, dividida por dos, preserva el promedio). Pero cuando dividimos por 2.1 o 2.2, perdemos un poco de energ&iacute;a cada vez &mdash; como un balde con fugas. Cuanto mayor el divisor, mayor la &quot;fuga&quot;, y m&aacute;s r&aacute;pido el sonido se desvanece al silencio.</p>
+                    <p data-i18n="s4c_p1c">&iexcl;Esto imita la f&iacute;sica real! Una cuerda de guitarra pierde energ&iacute;a por la fricci&oacute;n y la resistencia del aire. Una cuerda de guitarra cl&aacute;sica de nylon (baja fricci&oacute;n) suena por mucho tiempo. Una cuerda corta de banjo (alta fricci&oacute;n) se apaga r&aacute;pido. El factor de decaimiento nos permite simular estos diferentes materiales.</p>
                     <p data-i18n="s4c_p2">Compara c&oacute;mo cambia la forma de onda con diferentes valores de decaimiento:</p>
                     <div class="comparison-panel">
                         <div class="comparison-item">
@@ -288,6 +311,8 @@
             <section id="sec5" class="learn-section">
                 <h2 data-i18n="s5_title">5. El espectro: ver dentro del sonido</h2>
                 <p data-i18n="s5_p1">Hasta ahora hemos visto las ondas en el tiempo (waveforms). Pero hay otra forma de ver el sonido: en el dominio de la frecuencia. Esto nos muestra QU&Eacute; frecuencias componen un sonido.</p>
+                <p data-i18n="s5_p1b">&iquest;Qu&eacute; es un &quot;espectro&quot;? Imagina que tienes un prisma que separa la luz blanca en un arco&iacute;ris &mdash; cada color tiene una frecuencia diferente. Un espectro de frecuencias hace lo mismo con el sonido: te muestra qu&eacute; &quot;colores&quot; (frecuencias) componen un sonido, y qu&eacute; tan fuerte es cada uno.</p>
+                <p data-i18n="s5_p1c">Cuando ves m&uacute;ltiples picos en el espectro, esos se llaman &quot;arm&oacute;nicos&quot;. El pico m&aacute;s bajo es la &quot;fundamental&quot; &mdash; la nota que realmente escuchas. Los picos m&aacute;s altos son m&uacute;ltiplos de la fundamental (2&times;, 3&times;, 4&times;...) y le dan al sonido su car&aacute;cter o &quot;timbre&quot;. Una flauta tiene pocos arm&oacute;nicos (pura), mientras que una guitarra tiene muchos (rica).</p>
                 <p data-i18n="s5_p2">El ruido inicial tiene TODAS las frecuencias por igual (espectro plano). Despu&eacute;s del filtrado, solo quedan ciertas frecuencias: la fundamental (la nota que escuchamos) y sus arm&oacute;nicos (m&uacute;ltiplos de la fundamental).</p>
                 <div class="demo-box">
                     <canvas id="spectrumCanvas" class="tall"></canvas>
@@ -318,6 +343,7 @@
             <section id="sec6" class="learn-section">
                 <h2 data-i18n="s6_title">6. Afinando el sonido: hacia una guitarra real</h2>
                 <p data-i18n="s6_p1">El algoritmo b&aacute;sico de Karplus-Strong ya suena sorprendentemente bien. Pero podemos hacerlo a&uacute;n m&aacute;s realista agregando par&aacute;metros que simulan propiedades f&iacute;sicas de una cuerda real.</p>
+                <p data-i18n="s6_p1b">Cada instrumento suena diferente incluso tocando la misma nota &mdash; ese &quot;color&quot; &uacute;nico del sonido se llama timbre (se pronuncia &quot;TAM-bre&quot;). Una guitarra y un piano tocando la misma nota LA suenan completamente diferentes por su timbre. Los siguientes par&aacute;metros nos permiten moldear el timbre de nuestra cuerda sintetizada.</p>
                 <div class="param-grid">
                     <div class="param-card">
                         <h4 data-i18n="s6_pluck_title">Posici&oacute;n del punteo</h4>
@@ -352,6 +378,7 @@
                     <div class="param-card">
                         <h4 data-i18n="s6_body_title">Resonancia de la caja</h4>
                         <p data-i18n="s6_body_desc">La caja de resonancia de la guitarra amplifica ciertas frecuencias (formantes). Esto da riqueza y profundidad al sonido.</p>
+                        <p data-i18n="s6_body_desc_expanded" style="font-size: .85rem; color: var(--c-text-dim);">La caja de la guitarra act&uacute;a como una c&aacute;mara de resonancia &mdash; amplifica ciertas frecuencias m&aacute;s que otras. Estas frecuencias amplificadas se llaman &quot;formantes&quot;. Son lo que le da a una guitarra ac&uacute;stica su sonido c&aacute;lido y amaderado, en contraste con el tono m&aacute;s delgado de una guitarra el&eacute;ctrica.</p>
                         <div class="param-controls">
                             <label>
                                 <span data-i18n="s6_body_label">Intensidad:</span>
@@ -448,6 +475,8 @@
                     </div>
                 </div>
                 <p class="mt-3" data-i18n="s7_p2">Felicidades &mdash; acabas de sintetizar el sonido de una cuerda pulsada usando solo matem&aacute;ticas. Este es el mismo principio que usan los sintetizadores profesionales. &iexcl;Ahora ve a la secci&oacute;n Componer para crear tu propia m&uacute;sica!</p>
+                <p data-i18n="s7_p3">&iquest;Listo para hacer m&uacute;sica? Ve a la p&aacute;gina Componer para crear melod&iacute;as usando todo lo que aprendiste. Puedes colocar notas en una cuadr&iacute;cula de piano roll y escucharlas tocadas con el algoritmo Karplus-Strong. Prueba diferentes valores de decaimiento y configuraciones de BPM para crear tu sonido perfecto.</p>
+                <p data-i18n="s7_p4">&iquest;Quieres profundizar m&aacute;s? El algoritmo Karplus-Strong es solo el comienzo de la s&iacute;ntesis por modelado f&iacute;sico. Los mismos principios &mdash; l&iacute;neas de retardo, filtros y retroalimentaci&oacute;n &mdash; se usan para simular tambores, instrumentos de viento, e incluso cuerdas vocales.</p>
             </section>
 
         </div>
@@ -458,9 +487,10 @@
         <p class="footer-sub" data-i18n="footer_sub">Herramienta educativa interactiva para aprender procesamiento digital de se&ntilde;ales</p>
     </footer>
 
-    <script src="./js/i18n/strings.js"></script>
+    <script src="./js/i18n/strings.js?v=2"></script>
     <script src="./js/app.js"></script>
     <script src="./js/audio/synth.js"></script>
+    <script src="./js/utils/waveform-draw.js"></script>
     <script src="./js/learn/controller.js"></script>
 </body>
 </html>

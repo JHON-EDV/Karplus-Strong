@@ -89,7 +89,75 @@ class KSSynth {
     }
 
     /**
+     * Convert MIDI note number to frequency in Hz
+     */
+    midiToFreq(midi) {
+        return 440 * Math.pow(2, (midi - 69) / 12);
+    }
+
+    /**
+     * Synthesize a polyphonic mix of notes using KS algorithm.
+     * notes: [{pitch, startBeat, duration, velocity}]
+     * Returns { mixedBuffer, noteWaveforms: [{startSample, waveform}] }
+     */
+    synthesizeMix(notes, bpm, decayFactor = 2.0, instrumentParams = null) {
+        const secPerBeat = 60 / bpm;
+        const lastNote = notes.reduce((max, n) =>
+            Math.max(max, (n.startBeat + n.duration) * secPerBeat), 0);
+        const totalSamples = Math.round((lastNote + 0.5) * this.sampleRate);
+        const mixedBuffer = new Float32Array(totalSamples);
+        const noteWaveforms = [];
+
+        for (const note of notes) {
+            const freq = this.midiToFreq(note.pitch);
+            const durSec = Math.max(0.1, note.duration * secPerBeat);
+            const startSample = Math.round(note.startBeat * secPerBeat * this.sampleRate);
+            const velocity = note.velocity || 0.8;
+
+            let waveform;
+            if (instrumentParams) {
+                waveform = this.synthesizeAdvanced({
+                    freq,
+                    duration: durSec,
+                    decay: decayFactor,
+                    pluckPosition: instrumentParams.pluckPosition,
+                    stiffness: instrumentParams.stiffness,
+                    bodyResonance: instrumentParams.bodyResonance,
+                    brightness: instrumentParams.brightness,
+                });
+            } else {
+                waveform = this.synthesize(freq, durSec, decayFactor);
+            }
+
+            noteWaveforms.push({ startSample, waveform });
+
+            for (let j = 0; j < waveform.length; j++) {
+                const idx = startSample + j;
+                if (idx < totalSamples) {
+                    mixedBuffer[idx] += waveform[j] * velocity;
+                }
+            }
+        }
+
+        // Normalize to prevent clipping
+        let maxAbs = 0;
+        for (let i = 0; i < totalSamples; i++) {
+            const a = Math.abs(mixedBuffer[i]);
+            if (a > maxAbs) maxAbs = a;
+        }
+        if (maxAbs > 1) {
+            const scale = 0.95 / maxAbs;
+            for (let i = 0; i < totalSamples; i++) {
+                mixedBuffer[i] *= scale;
+            }
+        }
+
+        return { mixedBuffer, noteWaveforms };
+    }
+
+    /**
      * Play a synthesized waveform through Tone.js
+     * Returns the Tone.Player instance for stop support
      */
     async playBuffer(waveform) {
         await this.init();
@@ -98,6 +166,7 @@ class KSSynth {
         player.start();
         // Auto-dispose after playback
         setTimeout(() => player.dispose(), (waveform.length / this.sampleRate) * 1000 + 500);
+        return player;
     }
 
     /**
