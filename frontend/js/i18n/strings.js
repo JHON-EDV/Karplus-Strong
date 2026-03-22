@@ -576,7 +576,13 @@ function applyLanguage() {
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         const text = t(key);
-        if (text) el.textContent = text;
+        if (text) {
+            if (/<[a-z][\s\S]*>/i.test(text)) {
+                el.innerHTML = text;
+            } else {
+                el.textContent = text;
+            }
+        }
     });
     // Update lang label
     const label = document.getElementById('langLabel');
